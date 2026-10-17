@@ -23,13 +23,24 @@ jobs:
 
     - name: Build Tauri App
       run: |
-        # Create a temporary Tauri config and build the app
+        # 1. Install the Tauri CLI tool (This was missing!)
+        cargo install tauri-cli --version "^2.0.0" --locked
+        
+        # 2. Install the project generator
         cargo install create-tauri-app --locked
+        
+        # 3. Generate the Tauri project
         cargo create-tauri-app ishan-app --template vanilla --manager cargo --yes
         cd ishan-app
-        # Replace the default HTML with your file
-        cp ../Final\ Software.html src/index.html
-        # Build the .deb package
+        
+        # 4. Verify the HTML file exists before copying
+        echo "Current directory contents:"
+        ls -la ../
+        
+        # 5. Copy your HTML file (make sure the filename matches exactly!)
+        cp "../Final Software.html" src/index.html
+        
+        # 6. Build the .deb package
         cargo tauri build
 
     - name: Upload Deb Artifact
