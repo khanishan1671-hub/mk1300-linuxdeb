@@ -13,6 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Fixes the Node.js deprecation warning
+
     - name: Install Rust stable
       uses: dtolnay/rust-toolchain@stable
 
@@ -23,24 +28,18 @@ jobs:
 
     - name: Build Tauri App
       run: |
-        # 1. Install the Tauri CLI tool (This was missing!)
+        # 1. Install the Tauri CLI tool
         cargo install tauri-cli --version "^2.0.0" --locked
         
-        # 2. Install the project generator
-        cargo install create-tauri-app --locked
-        
-        # 3. Generate the Tauri project
+        # 2. Generate the Tauri project
         cargo create-tauri-app ishan-app --template vanilla --manager cargo --yes
         cd ishan-app
         
-        # 4. Verify the HTML file exists before copying
-        echo "Current directory contents:"
-        ls -la ../
-        
-        # 5. Copy your HTML file (make sure the filename matches exactly!)
+        # 3. Copy your HTML file
+        cp "../Final Software.html" index.html
         cp "../Final Software.html" src/index.html
         
-        # 6. Build the .deb package
+        # 4. Build the .deb package directly with cargo
         cargo tauri build
 
     - name: Upload Deb Artifact
