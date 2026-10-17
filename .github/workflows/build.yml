@@ -1,0 +1,39 @@
+name: Build Linux Deb
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install Linux dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+    - name: Build Tauri App
+      run: |
+        # Create a temporary Tauri config and build the app
+        cargo install create-tauri-app --locked
+        cargo create-tauri-app ishan-app --template vanilla --manager cargo --yes
+        cd ishan-app
+        # Replace the default HTML with your file
+        cp ../Final\ Software.html src/index.html
+        # Build the .deb package
+        cargo tauri build
+
+    - name: Upload Deb Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-deb
+        path: ishan-app/target/release/bundle/deb/*.deb
